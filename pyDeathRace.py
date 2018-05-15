@@ -29,23 +29,25 @@ class Meta(pygame.sprite.Sprite):
 
 class Player1(pygame.sprite.Sprite):
     # sprite for player 1
-    start = ((displayW / 2) + (display / 10))
     def __init__(self):
+        
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join(img_folder, "playerA.png")).convert()
-        
+
+        start = (displayW / 2 + displayW/ 10, 40)
         self.image.set_colorkey(black)
         self.rect = self.image.get_rect()
-        self.rect.center = ((displayW / 2) + (displayW / 8) , 0)
+        self.rect.center = start
         self.xSpeed = 0
         self.ySpeed = 0
 
     def update(self):
+        start = (displayW / 2 + displayW/ 10, 40)
         maxspeed = 15
         deltaS = 2
         keystate = pygame.key.get_pressed()
         if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
-            self.rect.center = (displayW / 2, displayH *.8)
+            self.rect.center = start
             self.xSpeed = 0
             self.ySpeed = 0
         elif keystate[pygame.K_LEFT]:
@@ -68,6 +70,104 @@ class Player1(pygame.sprite.Sprite):
             
         self.rect.x += self.xSpeed
         self.rect.y += self.ySpeed
+
+class Player2(pygame.sprite.Sprite):
+    # sprite for player 2
+    def __init__(self):
+        
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(img_folder, "playerC.png")).convert()
+
+        start = (displayW / 2 + displayW/ 10, 85)
+        self.image.set_colorkey(black)
+        self.rect = self.image.get_rect()
+        self.rect.center = start
+        self.xSpeed = 0
+        self.ySpeed = 0
+
+    def update(self):
+        start = (displayW / 2 + displayW/ 10, 85)
+        maxspeed = 15
+        deltaS = 2
+        keystate = pygame.key.get_pressed()
+        if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
+            self.rect.center = start
+            self.xSpeed = 0
+            self.ySpeed = 0
+        elif keystate[pygame.K_a]:
+            if self.xSpeed + self.ySpeed >= maxspeed:
+                self.xSpeed = maxspeed - self.ySpeed
+            else: self.xSpeed -= deltaS
+        elif keystate[pygame.K_d]:
+            if self.xSpeed + self.ySpeed >= maxspeed:
+                self.xSpeed = maxspeed - self.ySpeed
+            else: self.xSpeed += deltaS
+        elif keystate[pygame.K_s]:
+            if self.xSpeed + self.ySpeed >= maxspeed:
+                self.ySpeed = maxspeed - self.xSpeed
+            else: self.ySpeed += deltaS
+        elif keystate[pygame.K_w]:
+            if self.xSpeed + self.ySpeed >= maxspeed:
+                self.ySpeed = maxspeed - self.xSpeed
+            else: self.ySpeed -= deltaS
+        
+            
+        self.rect.x += self.xSpeed
+        self.rect.y += self.ySpeed
+
+class Dummy1(pygame.sprite.Sprite):
+    # sprite for dummy 1
+    def __init__(self):
+        
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(img_folder, "playerG.png")).convert()
+
+        start = ((displayW / 2 + displayW/ 10) + 70, 40)
+        self.image.set_colorkey(black)
+        self.rect = self.image.get_rect()
+        self.rect.center = start
+        self.xSpeed = 0
+        self.ySpeed = 0
+
+    def update(self):
+        start = ((displayW / 2 + displayW/ 10) + 70, 40)
+        maxspeed = 12
+        deltaS = 1.7
+        if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
+            self.rect.center = start
+            self.xSpeed = 0
+            self.ySpeed = 0
+        
+            
+        self.rect.x += self.xSpeed
+        self.rect.y += self.ySpeed
+
+class Dummy2(pygame.sprite.Sprite):
+    # sprite for dummy 1
+    def __init__(self):
+        
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(img_folder, "playerM.png")).convert()
+
+        start = ((displayW / 2 + displayW/ 10) + 70, 85)
+        self.image.set_colorkey(black)
+        self.rect = self.image.get_rect()
+        self.rect.center = start
+        self.xSpeed = 0
+        self.ySpeed = 0
+
+    def update(self):
+        start = ((displayW / 2 + displayW/ 10) + 70, 85)
+        maxspeed = 12
+        deltaS = 1.7
+        if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
+            self.rect.center = start
+            self.xSpeed = 0
+            self.ySpeed = 0
+        
+            
+        self.rect.x += self.xSpeed
+        self.rect.y += self.ySpeed
         
 
 pygame.init()
@@ -84,10 +184,21 @@ pygame.display.set_caption('pyDeathRace')
 
 
 all_sprites = pygame.sprite.Group()
-player1 = Player1()
+
+
 meta = Meta()
+player1 = Player1()
+player2 = Player2()
+dummy1 = Dummy1()
+dummy2 = Dummy2()
+
 all_sprites.add(meta)
 all_sprites.add(player1)
+all_sprites.add(player2)
+all_sprites.add(dummy1)
+all_sprites.add(dummy2)
+
+
 #game loop
 running = True
 while running:
@@ -102,6 +213,8 @@ while running:
     #Update
     gameDisplay.blit(mapa, (0, 0))
     all_sprites.update()
+
+    
     
     
     #Draw / Render
