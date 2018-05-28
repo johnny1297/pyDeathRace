@@ -1,6 +1,7 @@
 import os
 import pygame
 import ctypes
+import math
 
 # Def colores y fps
 
@@ -17,7 +18,6 @@ fps = 30
 #assets
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
-
 
 class Meta(pygame.sprite.Sprite):
     def __init__(self):
@@ -40,36 +40,158 @@ class Player1(pygame.sprite.Sprite):
         self.rect.center = start
         self.xSpeed = 0
         self.ySpeed = 0
+        self.angle = 0
 
     def update(self):
         start = (displayW / 2 + displayW/ 10, 40)
-        maxspeed = 15
-        deltaS = 2
+        maxspeed = 5
+        deltaS = 0.25
         keystate = pygame.key.get_pressed()
         if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
             self.rect.center = start
             self.xSpeed = 0
             self.ySpeed = 0
-        elif keystate[pygame.K_LEFT]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.xSpeed = maxspeed - self.ySpeed
-            else: self.xSpeed -= deltaS
-        elif keystate[pygame.K_RIGHT]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.xSpeed = maxspeed - self.ySpeed
-            else: self.xSpeed += deltaS
-        elif keystate[pygame.K_DOWN]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.ySpeed = maxspeed - self.xSpeed
-            else: self.ySpeed += deltaS
+
         elif keystate[pygame.K_UP]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.ySpeed = maxspeed - self.xSpeed
-            else: self.ySpeed -= deltaS
-        
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.xSpeed) >= maxspeed:
+                    if self.xSpeed > 0:               
+                        self.xSpeed -= deltaS         
+                        self.ySpeed -= deltaS            #delta Velocidad 
+                    else:                                #px/fps
+                        self.xSpeed += deltaS            #      ^
+                        self.ySpeed -= deltaS            #  8 - |          | 
+                elif abs(self.ySpeed)>= maxspeed:        #  7 - |\         |
+                    if self.ySpeed > 0:                  #  6 - | \        |
+                        self.ySpeed -= deltaS            #  5 - |\ \       /
+                    else: self.ySpeed = (maxspeed) * -1  #  4 - | \ \     /|
+                else:                                    #  3 - |  \ \   / |
+                    self.ySpeed -= deltaS                #  2 - |   \ \ /  |
+                    if self.xSpeed > 0:                  #  1 - |    \ X   |
+                        self.xSpeed -= deltaS            #  0 - |---- X-\--| 
+                    elif self.xSpeed < 0:                # -1 - |    / \ \ |
+                        self.xSpeed += deltaS            # -2 - |   /   \ \|
+                    else:                                # -3 - |  /     \ |
+                        self.xSpeed = 0                  # -4 - | /       \|
+            else:                                        # -5 - |/.........\......>  tiempo*
+                self.ySpeed -= deltaS                    # abajo si xSpeed es equidistante.
+                                                         # arriba si no lo es.
+        elif keystate[pygame.K_DOWN]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.xSpeed) >= maxspeed:
+                    if self.xSpeed > 0:                
+                        self.xSpeed -= deltaS         
+                        self.ySpeed += deltaS         
+                    else:                             
+                        self.xSpeed += deltaS         
+                        self.ySpeed += deltaS         
+                elif abs(self.ySpeed)>= maxspeed:        
+                    if self.ySpeed < 0:
+                        self.ySpeed += deltaS
+                    else:
+                        self.ySpeed = maxspeed
+                else:                                       
+                    self.ySpeed += deltaS                   
+                    if self.xSpeed > 0:                     
+                        self.xSpeed -= deltaS               
+                    elif self.xSpeed < 0:                 
+                        self.xSpeed += deltaS                
+                    else:                                                
+                        self.xSpeed = 0                             
+            else:                                             
+                self.ySpeed += deltaS
             
+        elif keystate[pygame.K_LEFT]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.ySpeed) >= maxspeed:
+                    if self.ySpeed > 0:               
+                        self.ySpeed -= deltaS         
+                        self.xSpeed -= deltaS        
+                    else:                           
+                        self.ySpeed += deltaS         
+                        self.xSpeed -= deltaS         
+                elif abs(self.xSpeed)>= maxspeed:    
+                    if self.xSpeed > 0:              
+                        self.xSpeed -= deltaS      
+                    else:
+                        self.xSpeed = (maxspeed) * -1
+                        self.ySpeed = 0
+                else:                               
+                    self.xSpeed -= deltaS            
+                    if self.ySpeed > 0:             
+                        self.ySpeed -= deltaS       
+                    elif self.ySpeed < 0:            
+                        self.ySpeed += deltaS       
+                    else:                          
+                        self.ySpeed = 0               
+            else:                                     
+                self.xSpeed -= deltaS
+                
+        elif keystate[pygame.K_RIGHT]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.ySpeed) >= maxspeed:
+                    if self.ySpeed > 0:                
+                        self.ySpeed -= deltaS         
+                        self.xSpeed += deltaS         
+                    else:                             
+                        self.ySpeed += deltaS         
+                        self.xSpeed += deltaS         
+                elif abs(self.xSpeed)>= maxspeed:        
+                    if self.xSpeed < 0:
+                        self.xSpeed += deltaS
+                    else:
+                        self.xSpeed = maxspeed
+                        self.ySpeed = 0
+                else:                                       
+                    self.xSpeed += deltaS                   
+                    if self.ySpeed > 0:                     
+                        self.ySpeed -= deltaS               
+                    elif self.ySpeed < 0:                 
+                        self.ySpeed += deltaS                
+                    else:                                                
+                        self.ySpeed = 0                             
+            else:                                             
+                self.xSpeed += deltaS
+        else:
+            if self.xSpeed > 0:
+                self.xSpeed -= deltaS
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+            elif self.xSpeed < 0:
+                self.xSpeed += deltaS
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+            else:
+                self.xSpeed = 0
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+                
         self.rect.x += self.xSpeed
         self.rect.y += self.ySpeed
+        self.angulo()
+        
+    def angulo(self):
+        
+        if self.ySpeed == 0 or self.xSpeed == 0:
+            if self.ySpeed == 0:
+                angle = 0
+            else:
+                if self.xSpeed > 0:
+                    angle = -90
+                else:
+                    angle = 90
+        else:
+            angle = math.degrees(math.atan(self.ySpeed / self.xSpeed))
+            self.image = pygame.transform.rotate(self.image, angle)
 
 class Player2(pygame.sprite.Sprite):
     # sprite for player 2
@@ -87,31 +209,138 @@ class Player2(pygame.sprite.Sprite):
 
     def update(self):
         start = (displayW / 2 + displayW/ 10, 85)
-        maxspeed = 15
-        deltaS = 2
+        
+        maxspeed = 5
+        deltaS = 0.25
         keystate = pygame.key.get_pressed()
         if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
             self.rect.center = start
             self.xSpeed = 0
             self.ySpeed = 0
-        elif keystate[pygame.K_a]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.xSpeed = maxspeed - self.ySpeed
-            else: self.xSpeed -= deltaS
-        elif keystate[pygame.K_d]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.xSpeed = maxspeed - self.ySpeed
-            else: self.xSpeed += deltaS
-        elif keystate[pygame.K_s]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.ySpeed = maxspeed - self.xSpeed
-            else: self.ySpeed += deltaS
         elif keystate[pygame.K_w]:
-            if self.xSpeed + self.ySpeed >= maxspeed:
-                self.ySpeed = maxspeed - self.xSpeed
-            else: self.ySpeed -= deltaS
-        
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.xSpeed) >= maxspeed:
+                    if self.xSpeed > 0:               
+                        self.xSpeed -= deltaS         
+                        self.ySpeed -= deltaS            #delta Velocidad 
+                    else:                                #px/fps
+                        self.xSpeed += deltaS            #      ^
+                        self.ySpeed -= deltaS            #  8 - |          | 
+                elif abs(self.ySpeed)>= maxspeed:        #  7 - |\         |
+                    if self.ySpeed > 0:                  #  6 - | \        |
+                        self.ySpeed -= deltaS            #  5 - |\ \       /
+                    else: self.ySpeed = (maxspeed) * -1  #  4 - | \ \     /|
+                else:                                    #  3 - |  \ \   / |
+                    self.ySpeed -= deltaS                #  2 - |   \ \ /  |
+                    if self.xSpeed > 0:                  #  1 - |    \ X   |
+                        self.xSpeed -= deltaS            #  0 - |---- X-\--| 
+                    elif self.xSpeed < 0:                # -1 - |    / \ \ |
+                        self.xSpeed += deltaS            # -2 - |   /   \ \|
+                    else:                                # -3 - |  /     \ |
+                        self.xSpeed = 0                  # -4 - | /       \|
+            else:                                        # -5 - |/.........\......>  tiempo*
+                self.ySpeed -= deltaS                    # abajo si xSpeed es equidistante.
+                                                         # arriba si no lo es.
+        elif keystate[pygame.K_s]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.xSpeed) >= maxspeed:
+                    if self.xSpeed > 0:                
+                        self.xSpeed -= deltaS         
+                        self.ySpeed += deltaS         
+                    else:                             
+                        self.xSpeed += deltaS         
+                        self.ySpeed += deltaS         
+                elif abs(self.ySpeed)>= maxspeed:        
+                    if self.ySpeed < 0:
+                        self.ySpeed += deltaS
+                    else:
+                        self.ySpeed = maxspeed
+                else:                                       
+                    self.ySpeed += deltaS                   
+                    if self.xSpeed > 0:                     
+                        self.xSpeed -= deltaS               
+                    elif self.xSpeed < 0:                 
+                        self.xSpeed += deltaS                
+                    else:                                                
+                        self.xSpeed = 0                             
+            else:                                             
+                self.ySpeed += deltaS
             
+        elif keystate[pygame.K_a]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                if abs(self.ySpeed) >= maxspeed:
+                    if self.ySpeed > 0:               
+                        self.ySpeed -= deltaS         
+                        self.xSpeed -= deltaS        
+                    else:                           
+                        self.ySpeed += deltaS         
+                        self.xSpeed -= deltaS         
+                elif abs(self.xSpeed)>= maxspeed:    
+                    if self.xSpeed > 0:              
+                        self.xSpeed -= deltaS      
+                    else:
+                        self.xSpeed = (maxspeed) * -1
+                        self.ySpeed = 0
+                else:                               
+                    self.xSpeed -= deltaS            
+                    if self.ySpeed > 0:             
+                        self.ySpeed -= deltaS       
+                    elif self.ySpeed < 0:            
+                        self.ySpeed += deltaS       
+                    else:                          
+                        self.ySpeed = 0               
+            else:                                     
+                self.xSpeed -= deltaS
+                
+        elif keystate[pygame.K_d]:
+            if abs(self.xSpeed) + abs(self.ySpeed) >= maxspeed:
+                
+                if abs(self.ySpeed) >= maxspeed:
+                    if self.ySpeed > 0:                
+                        self.ySpeed -= deltaS         
+                        self.xSpeed += deltaS         
+                    else:                             
+                        self.ySpeed += deltaS         
+                        self.xSpeed += deltaS         
+                elif abs(self.xSpeed)>= maxspeed:        
+                    if self.xSpeed < 0:
+                        self.xSpeed += deltaS
+                    else:
+                        self.xSpeed = maxspeed
+                        self.ySpeed = 0
+                else:                                       
+                    self.xSpeed += deltaS                   
+                    if self.ySpeed > 0:                     
+                        self.ySpeed -= deltaS               
+                    elif self.ySpeed < 0:                 
+                        self.ySpeed += deltaS                
+                    else:                                                
+                        self.ySpeed = 0                             
+            else:                                             
+                self.xSpeed += deltaS
+        else:
+            if self.xSpeed > 0:
+                self.xSpeed -= deltaS
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+            elif self.xSpeed < 0:
+                self.xSpeed += deltaS
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+            else:
+                self.xSpeed = 0
+                if self.ySpeed > 0:
+                    self.ySpeed -= deltaS
+                elif self.ySpeed < 0:
+                    self.ySpeed += deltaS
+                else: self.ySpeed = 0
+             
         self.rect.x += self.xSpeed
         self.rect.y += self.ySpeed
 
@@ -136,8 +365,7 @@ class Dummy1(pygame.sprite.Sprite):
         if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
             self.rect.center = start
             self.xSpeed = 0
-            self.ySpeed = 0
-        
+            self.ySpeed = 0 
             
         self.rect.x += self.xSpeed
         self.rect.y += self.ySpeed
@@ -163,13 +391,11 @@ class Dummy2(pygame.sprite.Sprite):
         if self.rect.bottom > displayH or self.rect.top < 0 or self.rect.left < 0 or self.rect.right > displayW:
             self.rect.center = start
             self.xSpeed = 0
-            self.ySpeed = 0
-        
+            self.ySpeed = 0 
             
         self.rect.x += self.xSpeed
         self.rect.y += self.ySpeed
         
-
 pygame.init()
 
 res = ctypes.windll.user32
@@ -182,9 +408,7 @@ mapa = pygame.image.load(os.path.join(img_folder, "track.jpg")).convert()
 
 pygame.display.set_caption('pyDeathRace')
 
-
 all_sprites = pygame.sprite.Group()
-
 
 meta = Meta()
 player1 = Player1()
@@ -197,7 +421,6 @@ all_sprites.add(player1)
 all_sprites.add(player2)
 all_sprites.add(dummy1)
 all_sprites.add(dummy2)
-
 
 #game loop
 running = True
@@ -213,26 +436,18 @@ while running:
     #Update
     gameDisplay.blit(mapa, (0, 0))
     all_sprites.update()
-
-    
-    
     
     #Draw / Render
     all_sprites.draw(gameDisplay)
     # *after* drawing everyting, flip the display
     pygame.display.flip()
-    
-        
 
                     #(where, color, {x, y, w, h)
     #pygame.draw.rect(gameDisplay, blue, [0, 0, 180, 40])
     #pygame.draw.rect(gameDisplay, red, [180, 0, 440, 40])
     #pygame.draw.rect(gameDisplay, blue, [620, 0, 180, 40])
 
-    
     pygame.display.update()
-
-
 
 pygame.quit()
 quit()
